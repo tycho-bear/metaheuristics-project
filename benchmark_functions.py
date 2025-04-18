@@ -42,7 +42,19 @@ def rosenbrock(x):
     :param x: (np.ndarray) Input vector of dimension 2.
     :return: (float) Function value.
     """
-    return sum(100 * (x[1:] - x[:-1]**2)**2 + (1 - x[:-1])**2)
+
+
+    # return sum(100 * (x[1:] - x[:-1]**2)**2 + (1 - x[:-1])**2)
+
+    D = len(x)
+
+    summation = 0
+    for i in range(D - 1):
+        # xi = x[i]
+        term = ((x[i] - 1) ** 2) + (100 * (x[i + 1] - x[i] ** 2) ** 2)
+        summation += term
+
+    return summation
 
 
 def schwefel(x):

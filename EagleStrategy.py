@@ -7,7 +7,10 @@ from optimization_algorithms import eagle_strategy
 
 def main():
     # Tune parameters ----------------------------------------------------------
-    bounds = [(-5, 5), (-5, 5)] # Defines the search space for each dimension of the optimization problem.
+    dim_test = 2  # TODO: change dimensionality here
+    # bounds = [(-5, 5), (-5, 5)] # Defines the search space for each dimension of the optimization problem.
+    bounds = [(-5, 5)] * dim_test
+    # n_agents = 5
     # n_agents = 10 # The number of agents or solutions in the population.
     n_agents = 50
     n_steps = 100 # The number of steps for the Lévy flight.
