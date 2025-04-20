@@ -1,4 +1,4 @@
-# Metaheuristics Project: Eagle Strategy with Levy Flights and Differential Evolution
+# Metaheuristics Project: Eagle Strategy with Levy Flights and local search optimization
 
 ## Overview
 The project combines two well-known metaheuristics for optimization:
@@ -10,8 +10,11 @@ distribution to create a biased random walk.
 as a local search method to refine solutions in that region. DE is applied iteratively, adjusting the population of 
 agents with mutation, crossover, and selection strategies.
 
-The **Eagle Strategy (ES)** first uses Levy Flights to explore the search space and then switches to Differential 
-Evolution to fine-tune solutions in promising regions.
+3. **Firefly Algorithm for Local Search**: Serves the same purpose as DE. It is used as a local search to refine
+solutions.
+
+The **Eagle Strategy (ES)** first uses Levy Flights to explore the search space and then switches to a local search
+to fine-tune solutions in promising regions.
 
 ## Requirements
 The following libraries are required to run the code:
