@@ -61,7 +61,7 @@ class OptimizationAlgorithm(ABC):
 
 
 class DifferentialEvolution(OptimizationAlgorithm):
-    def __init__(self, f, bounds, mut_factor=0.5, crossover_rate=0.9, agents=None, n_agents=10):
+    def __init__(self, f, bounds, mut_factor=0.5, crossover_rate=0.9, n_agents=10):
         """
         Create a DE optimizer
         :param f: (function) Objective function to minimize.
@@ -73,7 +73,6 @@ class DifferentialEvolution(OptimizationAlgorithm):
         """
 
         self.f = f
-        self.agents = agents
         self.bounds = np.array(bounds)
         self.mut_factor = mut_factor
         self.crossover_rate = crossover_rate
@@ -116,14 +115,13 @@ class DifferentialEvolution(OptimizationAlgorithm):
 
 
 class Firefly(OptimizationAlgorithm):
-    def __init__(self, f, bounds, alpha=1.0, theta=0.95, beta0=0.5, gamma=0.01, agents=None, n_agents=20):
+    def __init__(self, f, bounds, alpha=1.0, theta=0.95, beta0=0.5, gamma=0.01, n_agents=20):
         self.f = f
         self.bounds = np.array(bounds)
         self.alpha = alpha
         self.theta = theta
         self.beta0 = beta0
         self.gamma = gamma
-        self.agents = np.array(agents)
         self.n_agents = n_agents
         self.dim = len(bounds)
 
