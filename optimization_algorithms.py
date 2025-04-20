@@ -79,7 +79,7 @@ def eagle_strategy(f, bounds, n_agents=10, n_steps=100, beta=1.5, scale=0.01, ma
     dim = len(bounds)
 
     # Stage 1: Global search using Levy flight
-    agents = np.random.uniform([b[0] for b in bounds], [b[1] for b in bounds], size=(n_agents, dim))
+    agents = np.random.uniform(*zip(*bounds), size=(n_agents, dim))
     best_agent = min(agents, key=f)
 
     for i in range(n_agents):
