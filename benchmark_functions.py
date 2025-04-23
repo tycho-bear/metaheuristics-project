@@ -39,6 +39,8 @@ def rosenbrock(x):
 
     The global minimum is located at x* = f(1, ..., 1), f(x*) = 0.
 
+    x_i should be in [-30, 30].
+
     :param x: (np.ndarray) Input vector of dimension 2.
     :return: (float) Function value.
     """
