@@ -15,6 +15,8 @@ def ackley(x):
     The global minimum is located at the origin, i.e. x* = (0, ..., 0), with
     f(x*) = 0.
 
+    x_i should be in [-35, 35].
+
     :param x: (np.ndarray) Input vector of dimension d.
     :return: (float) The function value at the given x.
     """
@@ -76,8 +78,18 @@ def shubert_single(x, K=5):
     :param K: (int) Number of terms in the Shubert function.
     :return: (float) Function value.
     """
-    sum_x = np.sum([i * np.cos(i + (i + 1) * x) for i in range(1, K + 1)])
-    return sum_x ** 2
+    # sum_x = np.sum([i * np.cos(i + (i + 1) * x) for i in range(1, K + 1)])
+    # return sum_x ** 2
+
+    sum_x = 0
+    sum_y = 0
+    for i in range(K):
+        sum_x += i * np.cos(i + (i + 1)*x[0])
+        sum_y += i * np.cos(i + (i + 1)*x[1])
+
+    return sum_x * sum_y
+
+
 
 
 def shubert_multi(x, y, K=5):
