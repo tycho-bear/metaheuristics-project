@@ -68,7 +68,14 @@ def schwefel(x):
     :return: (float) Function value.
     """
     d = len(x)
-    return 418.9829 * d - np.sum([x[i] * np.sin(np.sqrt(abs(x[i]))) for i in range(d)])
+    # return 418.9829 * d - np.sum([x[i] * np.sin(np.sqrt(abs(x[i]))) for i in range(d)])
+
+    summation = 0
+    for i in range(d):
+        term = x[i] * np.sin(np.sqrt(np.abs(x[i])))
+        summation += term
+
+    return -1 * summation
 
 
 def shubert_single(x, K=5):
