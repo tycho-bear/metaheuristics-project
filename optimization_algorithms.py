@@ -44,16 +44,26 @@ class OptimizationAlgorithm(ABC):
         :param agents: (np.ndarray)
         """
 
-        self.agents = agents
+        self._agents = agents
 
-    def get_agents(self):
+
+    def set_bounds(self, bounds):
         """
-        Get the optimizer's agents.
+        Sets the optimizer's bounds.
 
-        :return: (np.ndarray)
+        :param bounds: list[tuple]|np.ndarray
         """
+        
+        match bounds:
+            case np.ndarray():
+                self._bounds = bounds
+            case _:
+                self._bounds = np.array(bounds)
 
-        return self.agents
+
+    def _clip(self, solution):
+        return np.clip(solution, self._bounds[:, 0], self._bounds[:, 1])
+
 
     @abstractmethod
     def evolve(self, generations):
@@ -61,23 +71,22 @@ class OptimizationAlgorithm(ABC):
 
 
 class DifferentialEvolution(OptimizationAlgorithm):
-    def __init__(self, f, bounds, mut_factor=0.5, crossover_rate=0.9, n_agents=10):
+    def __init__(self, f, dim, mut_factor=0.5, crossover_rate=0.9, n_agents=10):
         """
         Create a DE optimizer
         :param f: (function) Objective function to minimize.
+        :param dim: (int) Dimensions of the function
         :param agents: (np.ndarray) Current population of agents.
-        :param bounds: (list of tuples) Bounds for the solution space.
         :param mut_factor: (float) Mutation factor for DE.
         :param crossover_rate: (float) Crossover rate for DE.
         :param n_agents: (int) Number of agents in the population.
         """
 
         self.f = f
-        self.bounds = np.array(bounds)
+        self.dim = dim
         self.mut_factor = mut_factor
         self.crossover_rate = crossover_rate
         self.n_agents = n_agents
-        self.dim = len(bounds)
 
     def evolve(self, generations=1):
         """
@@ -86,17 +95,17 @@ class DifferentialEvolution(OptimizationAlgorithm):
         :param generations: (int) Number of generatiuons to evolve.
         """
 
-        assert self.agents is not None
+        assert self._agents is not None
 
         f = self.f
-        best = min(self.agents, key=f)
+        best = min(self._agents, key=f)
 
         for _ in range(generations):
             for i in range(self.n_agents):
                 idxs = [idx for idx in range(self.n_agents) if idx != i]
-                a, b, c = self.agents[np.random.choice(idxs, 3, replace=False)]
-                mutant = np.clip(
-                    a + self.mut_factor * (b - c), [b[0] for b in self.bounds], [b[1] for b in self.bounds]
+                a, b, c = self._agents[np.random.choice(idxs, 3, replace=False)]
+                mutant = self._clip(
+                    a + self.mut_factor * (b - c)
                 )
 
                 # binomial crossover
@@ -104,26 +113,25 @@ class DifferentialEvolution(OptimizationAlgorithm):
                 if not np.any(cross_points):
                     cross_points[np.random.randint(0, self.dim)] = True
 
-                trial = np.where(cross_points, mutant, self.agents[i])
+                trial = np.where(cross_points, mutant, self._agents[i])
 
-                if f(trial) < f(self.agents[i]):
-                    self.agents[i] = trial
+                if f(trial) < f(self._agents[i]):
+                    self._agents[i] = trial
 
-            best = min(best, *self.agents, key=f)
+            best = min(best, *self._agents, key=f)
 
-        return self.agents, best
+        return self._agents, best
 
 
 class Firefly(OptimizationAlgorithm):
-    def __init__(self, f, bounds, alpha=1.0, theta=0.95, beta0=0.5, gamma=0.01, n_agents=20):
+    def __init__(self, f, dim, alpha=1.0, theta=0.95, beta0=0.5, gamma=0.01, n_agents=20):
         self.f = f
-        self.bounds = np.array(bounds)
+        self.dim = dim
         self.alpha = alpha
         self.theta = theta
         self.beta0 = beta0
         self.gamma = gamma
         self.n_agents = n_agents
-        self.dim = len(bounds)
 
     def _attractiveness(self, xi, xj):
         """
@@ -141,11 +149,10 @@ class Firefly(OptimizationAlgorithm):
         :param i: (int) index of first firefly
         :param j: (int) index of second firefly
         """
-        beta = self._attractiveness(self.agents[i], self.agents[j])
+        beta = self._attractiveness(self._agents[i], self._agents[j])
         epsilon = np.random.uniform(-0.5, 0.5, self.dim)
-        step = beta * (self.agents[j] - self.agents[i]) + self.alpha * epsilon
-        self.agents[i] += step
-        self.agents[i] = np.clip(self.agents[i], self.bounds[:, 0], self.bounds[:, 1])
+        step = beta * (self._agents[j] - self._agents[i]) + self.alpha * epsilon
+        self._agents[i] = self._clip(self._agents[i] + step)
 
     def evolve(self, generations=1):
         """
@@ -154,33 +161,34 @@ class Firefly(OptimizationAlgorithm):
         :param generations: (int) Number of generatiuons to evolve.
         """
 
-        assert type(self.agents) == type(np.array([]))
+        assert type(self._agents) == type(np.array([]))
 
         f = self.f
-        best = min(self.agents, key=f)
+        best = min(self._agents, key=f)
         alpha_p = self.alpha
 
         for _ in range(generations):
             for i in range(self.n_agents):
                 for j in range(self.n_agents):
-                    if f(self.agents[i]) >= f(self.agents[j]):
+                    if f(self._agents[i]) >= f(self._agents[j]):
                         self._move_firefly(i, j)
 
             alpha_p = alpha_p * self.theta
 
-            best = min(best, *self.agents, key=f)
+            best = min(best, *self._agents, key=f)
 
-        return self.agents, best
+        return self._agents, best
 
 
 def eagle_strategy(
-    f, optimizer, global_bounds, n_agents=10, n_steps=100, beta=1.5, scale=0.01, max_gen=50
+    f, optimizer, global_bounds, local_radius, n_agents=10, n_steps=100, beta=1.5, scale=0.01, max_gen=50
 ):
     """
     Eagle strategy combining Levy flight for global search and Differential Evolution for local search.
     :param f: (function) Objective function to minimize.
     :param optimizer: (OptimizationAlgorithm) The local optimization algorithm to use
     :param global_bounds: (list of tuples) Bounds for the solution space.
+    :param local_inradius: (np.ndarray) Inradius of local search space in n dimensions
     :param n_agents: (int) Number of agents in the population.
     :param n_steps: (int) Number of steps for Levy flight.
     :param beta: (float) Stability parameter for Levy flight.
@@ -207,6 +215,13 @@ def eagle_strategy(
             best_agent = agents[i]
 
     # Stage 2: Local search
+    # Get bounds for local search
+    mins = best_agent - local_radius
+    maxs = best_agent + local_radius
+    local_bounds = list(zip(mins, maxs))
+    optimizer.set_bounds(local_bounds)
+    
+    agents = np.random.uniform(*zip(*local_bounds), size=(n_agents, dim))
     optimizer.set_agents(agents)
     _, best_agent = optimizer.evolve(max_gen)
 
