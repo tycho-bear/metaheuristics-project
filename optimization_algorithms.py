@@ -174,7 +174,7 @@ class Firefly(OptimizationAlgorithm):
 
 
 def eagle_strategy(
-    f, optimizer, bounds, n_agents=10, n_steps=100, beta=1.5, scale=0.01, max_gen=50, mut_factor=0.5, crossover_rate=0.9
+    f, optimizer, bounds, n_agents=10, n_steps=100, beta=1.5, scale=0.01, max_gen=50
 ):
     """
     Eagle strategy combining Levy flight for global search and Differential Evolution for local search.
@@ -186,8 +186,6 @@ def eagle_strategy(
     :param beta: (float) Stability parameter for Levy flight.
     :param scale: (float) Step size scaling factor for Levy flight.
     :param max_gen: (int) Maximum number of generations for the algorithm.
-    :param mut_factor: (float) Mutation factor for DE.
-    :param crossover_rate: (float) Crossover rate for DE.
     :return: best_agent (np.ndarray), best_value (float)
     """
 

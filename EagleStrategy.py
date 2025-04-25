@@ -16,27 +16,31 @@ def main():
     n_steps = 100  # The number of steps for the Lévy flight.
     beta = 1.5  # The stability parameter for the Lévy flight.
     scale = 0.01  # The scaling factor for the step size in the Lévy flight.
-    max_gen = 50  # The maximum number of generations for the Differential Evolution algorithm.
+    max_gen = 50  # The maximum number of generations for the local search.
     mut_factor = 0.5  # The mutation factor for the Differential Evolution algorithm.
     crossover_rate = 0.9  # The crossover rate for the Differential Evolution algorithm.
+    beta0 = 0.9 # Attractiveness at r=0 for FA
+    gamma = 0.05 # Light Absorption Coefficient for FA
+    alpha = 0.05 # Randomization parameter for FA
+    theta = 0.66 # Randomization decay for FA
     # --------------------------------------------------------------------------
 
     f = rosenbrock
 
-    # Create DE and FF optimizers for our eagle strategy
+    # Create DE and FA optimizers for our eagle strategy
     DE = DifferentialEvolution(f, bounds, mut_factor, crossover_rate, n_agents=n_agents)
-    FF = Firefly(f, bounds, beta0=0.5, gamma=1.0, alpha=1.0, theta=0.99, n_agents=n_agents)
+    FA = Firefly(f, bounds, alpha, theta, beta0, gamma, n_agents)
 
     # Run the eagle strategy
     best_agent_DE, best_value_DE = eagle_strategy(
-        f, DE, bounds, n_agents, n_steps, beta, scale, max_gen, mut_factor, crossover_rate
+        f, DE, bounds, n_agents, n_steps, beta, scale, max_gen
     )
-    best_agent_FF, best_value_FF = eagle_strategy(
-        f, FF, bounds, n_agents, n_steps, beta, scale, max_gen, mut_factor, crossover_rate
+    best_agent_FA, best_value_FA = eagle_strategy(
+        f, FA, bounds, n_agents, n_steps, beta, scale, max_gen
     )
 
     print(f"Best agent with DE: f({best_agent_DE})={best_value_DE:.10f}")
-    print(f"Best agent with FF: f({best_agent_FF})={best_value_FF:.10f}")
+    print(f"Best agent with FA: f({best_agent_FA})={best_value_FA:.10f}")
 
 
 if __name__ == "__main__":
