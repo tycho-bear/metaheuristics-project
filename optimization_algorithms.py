@@ -174,13 +174,13 @@ class Firefly(OptimizationAlgorithm):
 
 
 def eagle_strategy(
-    f, optimizer, bounds, n_agents=10, n_steps=100, beta=1.5, scale=0.01, max_gen=50
+    f, optimizer, global_bounds, n_agents=10, n_steps=100, beta=1.5, scale=0.01, max_gen=50
 ):
     """
     Eagle strategy combining Levy flight for global search and Differential Evolution for local search.
     :param f: (function) Objective function to minimize.
     :param optimizer: (OptimizationAlgorithm) The local optimization algorithm to use
-    :param bounds: (list of tuples) Bounds for the solution space.
+    :param global_bounds: (list of tuples) Bounds for the solution space.
     :param n_agents: (int) Number of agents in the population.
     :param n_steps: (int) Number of steps for Levy flight.
     :param beta: (float) Stability parameter for Levy flight.
@@ -189,17 +189,17 @@ def eagle_strategy(
     :return: best_agent (np.ndarray), best_value (float)
     """
 
-    dim = len(bounds)
+    dim = len(global_bounds)
 
     # Stage 1: Global search using Levy flight
-    agents = np.random.uniform(*zip(*bounds), size=(n_agents, dim))
+    agents = np.random.uniform(*zip(*global_bounds), size=(n_agents, dim))
     best_agent = min(agents, key=f)
 
     for i in range(n_agents):
         path = levy_flight(n_steps, beta, scale, dim)
         move = path[-1]  # Last position in the flight path
         candidate = agents[i] + move
-        candidate = np.clip(candidate, [b[0] for b in bounds], [b[1] for b in bounds])
+        candidate = np.clip(candidate, [b[0] for b in global_bounds], [b[1] for b in global_bounds])
 
         if f(candidate) < f(agents[i]):
             agents[i] = candidate
