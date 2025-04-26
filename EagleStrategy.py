@@ -14,18 +14,18 @@ np.random.seed(seed)
 dim_test = 2  # TODO: change dimensionality here
 # bounds = [(-5, 5), (-5, 5)] # Defines the search space for each dimension of the optimization problem.
 
-# f = ackley
+f = ackley
 # f = sphere
 # f = rosenbrock
 # f = schwefel
-f = shubert_single
+# f = shubert_single
 
 
-# global_bounds = [(-32.768, 32.768)] * dim_test  # Ackley
+global_bounds = [(-32.768, 32.768)] * dim_test  # Ackley
 # global_bounds = [(-5.12, 5.12)] * dim_test      # De Jong (sphere)
 # global_bounds = [(-5, 5)] * dim_test            # Rosenbrock
-# global_bounds = [(-500, 500)] * dim_test          # Schwefel
-global_bounds = [(-10, 10)] * dim_test          # Shubert single
+# global_bounds = [(-500, 500)] * dim_test        # Schwefel
+# global_bounds = [(-10, 10)] * dim_test          # Shubert single
 
 # Ackley
 # global_bounds = [(-32.768, 32.768)] * dim_test
@@ -111,8 +111,8 @@ def simulate(function):
     print(f"Function: {function}")
     print(f"Global bounds: {global_bounds}")
     # print(f"Local bounds: {local_bounds}")
-    # print(f"Hyperparameters: F={mut_factor}, Cr={crossover_rate}")
-    print(f"Hyperparameters: alpha={alpha}, beta={beta0}, gamma={gamma}")
+    print(f"Hyperparameters: F={mut_factor}, Cr={crossover_rate}")
+    # print(f"Hyperparameters: alpha={alpha}, beta={beta0}, gamma={gamma}")
     print()
 
     start_time = time.time()
@@ -120,9 +120,8 @@ def simulate(function):
     for n_agents_num in n_agents_values:
         n_start_time = time.time()
 
-        # opt = DifferentialEvolution(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
-        # opt = Firefly(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
-        opt = Firefly(f, global_bounds, beta0=beta0, gamma=gamma, alpha=alpha, theta=theta, n_agents=n_agents_num)
+        opt = DifferentialEvolution(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
+        # opt = Firefly(f, global_bounds, beta0=beta0, gamma=gamma, alpha=alpha, theta=theta, n_agents=n_agents_num)
 
         this_n_results = []
         for i in range(num_simulation_trials):
