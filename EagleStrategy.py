@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from benchmark_functions import *
 from optimization_algorithms import *
 import time
+import argparse
+import sys
 
 
 
@@ -11,44 +13,16 @@ import time
 seed = 666
 np.random.seed(seed)
 
-dim_test = 2  # TODO: change dimensionality here
-# bounds = [(-5, 5), (-5, 5)] # Defines the search space for each dimension of the optimization problem.
+num_dimensions = 2  # TODO: change dimensionality here
 
-f = ackley
-# f = sphere
-# f = rosenbrock
-# f = schwefel
-# f = shubert_single
+DIFFERENTIAL_EVOLUTION_ALGORITHM = "de"
+FIREFLY_ALGORITHM = "firefly"
 
-
-global_bounds = [(-32.768, 32.768)] * dim_test  # Ackley
-# global_bounds = [(-5.12, 5.12)] * dim_test      # De Jong (sphere)
-# global_bounds = [(-5, 5)] * dim_test            # Rosenbrock
-# global_bounds = [(-500, 500)] * dim_test        # Schwefel
-# global_bounds = [(-10, 10)] * dim_test          # Shubert single
-
-# Ackley
-# global_bounds = [(-32.768, 32.768)] * dim_test
-# local_bounds = [(-5, 5)] * dim_test
-
-# De Jong (sphere)
-# global_bounds = [(-5.12, 5.12)] * dim_test
-# local_bounds = [(-1, 1)] * dim_test
-
-# Rosenbrock
-# global_bounds = [(-5, 5)] * dim_test
-# local_bounds = [(-1, 1)] * dim_test
-
-# Schwefel
-# global_bounds = [(-500, 500)] * dim_test
-# # local_bounds = [(-75, 75)] * dim_test
-# local_bounds = global_bounds
-
-# Shubert single
-# global_bounds = [(-10, 10)] * dim_test
-# local_bounds = [(-1.5, 1.5)] * dim_test
-
-
+ACKLEY_FUNCTION = "ackley"
+SPHERE_FUNCTION = "sphere"
+ROSENBROCK_FUNCTION = "rosenbrock"
+SCHWEFEL_FUNCTION = "schwefel"
+SHUBERT_FUNCTION = "shubert"
 
 # n_agents = 5
 # n_agents = 10 # The number of agents or solutions in the population.
@@ -70,6 +44,8 @@ crossover_rate = 0.9  # The crossover rate for the Differential Evolution algori
 # mut_factor = 0.8
 # crossover_rate = 0.7
 
+global_bounds = None
+
 
 # firefly algorithm
 # original
@@ -80,13 +56,6 @@ gamma = 1           # 1
 # beta0 = 0.9         # 0.5
 # gamma = 2           # 1
 
-# bad
-# alpha = 0.6
-# beta0 = 0.4
-# gamma = 1
-
-
-
 theta = 0.99        # 0.99
 # theta = 0.9        # trying this
 
@@ -94,7 +63,81 @@ num_simulation_trials = 10  # do this number of trials and pick the best result
 # --------------------------------------------------------------------------
 
 
-def simulate(function):
+def main():
+    # args: choose algorithm, choose function
+    # function has corresponding global bounds
+
+    # algorithm = de, firefly
+    # function = ackley, sphere, rosenbrock, schwefel, shubert
+
+    parser = argparse.ArgumentParser(
+        description="Run optimization algorithm on a given problem."
+    )
+    parser.add_argument("algorithm", choices=["de", "firefly"],
+                        help="The optimization algorithm to use: de or firefly.")
+    parser.add_argument("function",
+                        choices=["ackley", "sphere", "rosenbrock", "schwefel",
+                                 "shubert"],
+                        help="The function to minimize: ackley, sphere, "
+                             "rosenbrock, schwefel, or shubert.")
+    args = parser.parse_args()
+
+    algorithm_arg = args.algorithm
+    print("Algorithm argument:", algorithm_arg)
+
+    global global_bounds  # reassign the variable outside this function
+
+    function_arg = args.function
+    if function_arg == ACKLEY_FUNCTION:
+        function = ackley
+        global_bounds = [(-32.768, 32.768)] * num_dimensions
+    elif function_arg == SPHERE_FUNCTION:
+        function = sphere
+        global_bounds = [(-5.12, 5.12)] * num_dimensions
+    elif function_arg == ROSENBROCK_FUNCTION:
+        function = rosenbrock
+        global_bounds = [(-5, 5)] * num_dimensions
+    elif function_arg == SCHWEFEL_FUNCTION:
+        function = schwefel
+        global_bounds = [(-500, 500)] * num_dimensions
+    # elif function_arg == SHUBERT_FUNCTION:
+    else:
+        function = shubert_single
+        global_bounds = [(-10, 10)] * num_dimensions
+
+    simulate(algorithm_arg, function)
+
+
+
+    # if algorithm_arg == DE_ALGORITHM_STRING:
+        # algorithm = DifferentialEvolution(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
+
+
+
+    # Create DE and FF optimizers for our eagle strategy
+    # DE = DifferentialEvolution(f, local_bounds, mut_factor, crossover_rate, n_agents=n_agents)
+    # FF = Firefly(f, local_bounds, beta0=beta0, gamma=gamma, alpha=alpha, theta=theta, n_agents=n_agents)
+
+
+    # simulate(f)
+
+
+
+    # # Run the eagle strategy
+    # best_agent_DE, best_value_DE = eagle_strategy(
+    #     f, DE, global_bounds, n_agents, n_steps, beta, scale, max_gen, mut_factor, crossover_rate
+    # )
+    # print(f"Best agent with DE:  {best_agent_DE}  -->  {best_value_DE:.10f}")
+
+
+
+    # best_agent_FF, best_value_FF = eagle_strategy(
+    #     f, FF, global_bounds, n_agents, n_steps, beta, scale, max_gen, mut_factor, crossover_rate
+    # )
+    # print(f"Best agent with FF:  {best_agent_FF}  -->  {best_value_FF:.10f}")
+
+
+def simulate(algorithm, function):
     """
 
     Args:
@@ -120,7 +163,16 @@ def simulate(function):
     for n_agents_num in n_agents_values:
         n_start_time = time.time()
 
-        opt = DifferentialEvolution(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
+        # opt = algorithm
+
+        if algorithm == DIFFERENTIAL_EVOLUTION_ALGORITHM:
+            opt = DifferentialEvolution(function, global_bounds, mut_factor,
+                                        crossover_rate, n_agents=n_agents_num)
+        else:
+            opt = Firefly(function, global_bounds, beta0=beta0, gamma=gamma,
+                          alpha=alpha, theta=theta, n_agents=n_agents_num)
+
+        # opt = DifferentialEvolution(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
         # opt = Firefly(f, global_bounds, beta0=beta0, gamma=gamma, alpha=alpha, theta=theta, n_agents=n_agents_num)
 
         this_n_results = []
@@ -131,7 +183,7 @@ def simulate(function):
             #                                           mut_factor, crossover_rate)
 
             best_agent, best_value = eagle_strategy(
-                f, opt, global_bounds, n_agents_num, n_steps, beta, scale, max_gen,
+                function, opt, global_bounds, n_agents_num, n_steps, beta, scale, max_gen,
                 mut_factor, crossover_rate
             )
 
@@ -156,37 +208,6 @@ def simulate(function):
     end_time = time.time()
     print(f"Time elapsed: {(end_time - start_time):.1f} seconds")
 
-
-
-
-
-
-def main():
-
-
-
-
-    # Create DE and FF optimizers for our eagle strategy
-    # DE = DifferentialEvolution(f, local_bounds, mut_factor, crossover_rate, n_agents=n_agents)
-    # FF = Firefly(f, local_bounds, beta0=beta0, gamma=gamma, alpha=alpha, theta=theta, n_agents=n_agents)
-
-
-    simulate(f)
-
-
-
-    # # Run the eagle strategy
-    # best_agent_DE, best_value_DE = eagle_strategy(
-    #     f, DE, global_bounds, n_agents, n_steps, beta, scale, max_gen, mut_factor, crossover_rate
-    # )
-    # print(f"Best agent with DE:  {best_agent_DE}  -->  {best_value_DE:.10f}")
-
-
-
-    # best_agent_FF, best_value_FF = eagle_strategy(
-    #     f, FF, global_bounds, n_agents, n_steps, beta, scale, max_gen, mut_factor, crossover_rate
-    # )
-    # print(f"Best agent with FF:  {best_agent_FF}  -->  {best_value_FF:.10f}")
 
 
 if __name__ == "__main__":
