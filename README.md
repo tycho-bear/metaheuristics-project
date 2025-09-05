@@ -45,6 +45,30 @@ where
 
 `<FUNCTION_TO_OPTIMIZE>` = `ackley`, `sphere`, `rosenbrock`, `schwefel`, or `shubert`
 
+---
+
 ### Docker
 
-The simplest way to run this project with Docker is through `make`. 
+The simplest way to run this project with Docker is through `make`. To build the project, run
+
+```bash
+make build
+```
+
+To run the project after building, run
+
+```bash
+make run
+```
+
+To build and run the project all at once, run
+
+```bash
+make start
+```
+
+Algorithm and function arguments may be specified with `ARGS="<ALGORITHM> <FUNCTION_TO_OPTIMIZE>"`. For example:
+
+```bash
+make run ARGS="de rosenbrock"
+```
