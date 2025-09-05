@@ -16,42 +16,35 @@ The following libraries are required to run the code:
 - `numpy`
 - `matplotlib`
 
-To install the dependencies run:
+To install them, run:
 ```bash
 pip install -r requirments.txt
 ```
 
 ## Usage
+
+This project can be run from the command line, or with Docker.
+
+### Command Line
+
 To run the code, execute the following command in your terminal:
+
 ```bash
 python EagleStrategy.py
 ```
 
-By default, this will run ES + DE on the Ackley function. To run it on the other functions, comment or uncomment these lines of code accordingly, based on the function and local optimizer you want to use.
+By default, this will run ES + DE on the Ackley function. To run other configurations, you can specify the algorithm and function like this:
 
-#### Function to optimize:
-
-```angular2html
-f = ackley
-# f = sphere
-# f = rosenbrock
-# f = schwefel
-# f = shubert_single
+```bash
+python EagleStrategy.py <ALGORITHM> <FUNCTION_TO_OPTIMIZE>
 ```
 
-#### Set the bounds for the search space:
+where 
 
-```angular2html
-global_bounds = [(-32.768, 32.768)] * dim_test  # Ackley
-# global_bounds = [(-5.12, 5.12)] * dim_test      # De Jong (sphere)
-# global_bounds = [(-5, 5)] * dim_test            # Rosenbrock
-# global_bounds = [(-500, 500)] * dim_test        # Schwefel
-# global_bounds = [(-10, 10)] * dim_test          # Shubert single
-```
+`<ALGORITHM>` = `de` or `firefly`
 
-#### Choose a local optimizer:
+`<FUNCTION_TO_OPTIMIZE>` = `ackley`, `sphere`, `rosenbrock`, `schwefel`, or `shubert`
 
-```angular2html
-opt = DifferentialEvolution(f, global_bounds, mut_factor, crossover_rate, n_agents=n_agents_num)
-# opt = Firefly(f, global_bounds, beta0=beta0, gamma=gamma, alpha=alpha, theta=theta, n_agents=n_agents_num)
-```
+### Docker
+
+The simplest way to run this project with Docker is through `make`. 
