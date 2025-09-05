@@ -47,7 +47,7 @@ where
 
 ---
 
-### Docker
+## Docker
 
 The simplest way to run this project with Docker is through `make`. To build the project, run
 
