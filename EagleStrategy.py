@@ -8,7 +8,6 @@ import argparse
 import sys
 
 
-
 # Tune parameters ----------------------------------------------------------
 seed = 666
 np.random.seed(seed)
@@ -40,6 +39,7 @@ max_gen = 50  # 50 The maximum number of generations for the Differential Evolut
 mut_factor = 0.5  # The mutation factor for the Differential Evolution algorithm. (F)
 crossover_rate = 0.9  # The crossover rate for the Differential Evolution algorithm. (Cr)
 
+function = None  # reassigned later
 global_bounds = None  # reassigned later
 
 # firefly algorithm
@@ -60,25 +60,53 @@ def main():
     # algorithm = de, firefly
     # function = ackley, sphere, rosenbrock, schwefel, shubert
 
+    if len(sys.argv) < 3:  # no algorithm or function provided
+        print("No arguments specified, using default values instead.")
+        alg = DIFFERENTIAL_EVOLUTION_ALGORITHM
+        func = ackley
+        set_function_and_bounds(func)
+        simulate(alg, func)
+        exit(0)
+
     parser = argparse.ArgumentParser(
         description="Run optimization algorithm on a given problem."
     )
     parser.add_argument("algorithm", choices=["de", "firefly"],
+                        default="de",
                         help="The optimization algorithm to use: de or firefly.")
     parser.add_argument("function",
                         choices=["ackley", "sphere", "rosenbrock", "schwefel",
                                  "shubert"],
+                        default="ackley",
                         help="The function to minimize: ackley, sphere, "
-                             "rosenbrock, schwefel, or shubert.")
+                             "rosenbrock, schwefel, or shubert.",)
     args = parser.parse_args()
 
     algorithm_arg = args.algorithm
     print("Algorithm argument:", algorithm_arg)
 
+    function_arg = args.function
+    set_function_and_bounds(function_arg)
+
+    # run the algorithm + problem combination
+    simulate(algorithm_arg, function)
+
+
+def set_function_and_bounds(function_arg):
+    """
+    Helper function that sets the global function to use, as well as the search
+    space bounds.
+
+    :param function_arg: The function that will be minimized.
+
+    :return: None
+    """
+
     global global_bounds  # reassign the variable outside this function
+    global function
 
     # check function here and set global bounds
-    function_arg = args.function
+    # function_arg = args.function
     if function_arg == ACKLEY_FUNCTION:
         function = ackley
         global_bounds = [(-32.768, 32.768)] * num_dimensions
@@ -96,9 +124,6 @@ def main():
         global_bounds = [(-10, 10)] * num_dimensions
 
 
-    # run the algorithm + problem combination
-    simulate(algorithm_arg, function)
-
 
 def simulate(algorithm, function):
     """
@@ -108,7 +133,6 @@ def simulate(algorithm, function):
     :param function: The function to minimize.
 
     :return: None
-
     """
 
     # print("Running DE simulator...")
