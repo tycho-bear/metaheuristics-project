@@ -1,6 +1,6 @@
 import numpy as np
 import math
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from benchmark_functions import *
 from optimization_algorithms import *
 import time
@@ -83,7 +83,6 @@ def main():
     args = parser.parse_args()
 
     algorithm_arg = args.algorithm
-    print("Algorithm argument:", algorithm_arg)
 
     function_arg = args.function
     set_function_and_bounds(function_arg)
